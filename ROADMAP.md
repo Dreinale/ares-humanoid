@@ -105,6 +105,7 @@
 | Date | Événement |
 |---|---|
 | 2026-09-26 | MuJoCo installé et testé. Bras follower SO-101 fonctionnel. Roadmap initialisée. |
+| 2026-09-27 | Env `ares` (lerobot 0.6.2 / Python 3.12) opérationnel. Bras follower validé via `test_follower.py` — tous les joints OK, gripper OK. Branch `feat/leader-arm` créée. |
 
 ---
 
