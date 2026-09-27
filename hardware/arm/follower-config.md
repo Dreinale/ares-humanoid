@@ -7,8 +7,10 @@
 ## Port série
 
 ```
-COM4
+COM3
 ```
+
+> Port identifié via `python -m lerobot.find_port` — peut varier selon le port USB utilisé. Toujours vérifier avant une session.
 
 ---
 
@@ -35,10 +37,28 @@ Source originale : `C:\Users\nzo\.cache\huggingface\lerobot\calibration\robots\s
 
 ---
 
-## Problème connu
+## Problèmes connus
 
-- **Servo wrist_roll (ID 5)** : câble d'origine cassé pendant le montage. Servo fonctionnel mais fixation fragile.
-- Commander un câble de rechange avant toute session intensive : https://www.amazon.fr/dp/B0CLRJZG8D
+### Servo wrist_roll (ID 5) — câble cassé
+Câble d'origine cassé pendant le montage. Servo fonctionnel mais fixation fragile.  
+Commander un câble de rechange : https://www.amazon.fr/dp/B0CLRJZG8D
+
+### Gripper (ID 6) — bloqué à 100%
+Diagnostiqué lors des sessions d'entraînement ACT (août 2025).  
+Le gripper reste en position fermée quelle que soit la commande envoyée.
+
+```
+Commande gripper: 0%   → Position: 100.00%
+Commande gripper: 50%  → Position: 100.00%
+Commande gripper: 100% → Position: 100.00%
+```
+
+**Causes possibles :**
+- Obstruction mécanique (impression 3D, débris)
+- Câble endommagé ou mal connecté sur ID 6
+- Calibration incomplète (range_min/max quasi nuls dans l'ancien fichier de calibration)
+
+**Action requise :** vérifier physiquement avant toute nouvelle session d'enregistrement.
 
 ---
 
@@ -70,7 +90,15 @@ robot:
 Avant chaque session :
 
 - [ ] Vérifier câble wrist_roll (ID 5) bien connecté
-- [ ] Brancher USB controller sur COM4
-- [ ] Lancer calibration : `python lerobot/scripts/control_robot.py --config-name=config_calilbrate`
-- [ ] Vérifier que les 6 joints répondent
+- [ ] Vérifier mécaniquement le gripper (ID 6) — obstruction ?
+- [ ] Identifier le bon port : `python -m lerobot.find_port`
+- [ ] Lancer calibration : `python -m lerobot.calibrate --robot.type=so101_follower --robot.port=COM3 --robot.id=enzo_follower_arm`
+- [ ] Vérifier que les 6 joints répondent **y compris le gripper**
 - [ ] Test mouvement complet shoulder → gripper
+
+## Historique training ACT
+
+- **Dataset** : `Dreinale/so101_demo_1` — 15 épisodes, 6656 frames
+- **Policy** : `Dreinale/so101_demo_1_policy` — ACT, ResNet18, 65K steps
+- **Loss finale** : 6.890 → 0.051
+- **Résultat** : robot bouge de façon autonome, mais gripper non fonctionnel → dataset à refaire une fois le gripper réparé
